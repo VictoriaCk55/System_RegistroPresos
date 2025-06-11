@@ -1,69 +1,75 @@
 import tkinter as tk
 from PIL import Image, ImageTk
-import main_window  # Asegúrate de que 'ventana_principal' esté correctamente importado
+import main_window 
 
-# Credenciales generales
 USUARIO_GENERAL = "admin"
 CONTRASEÑA_GENERAL = "admin"
 
-# Declaramos la ventana como global
 ventana_login = None
 
 def crear_login(on_login_success):
     global ventana_login
     ventana_login = tk.Tk()
     ventana_login.title("Login - Sistema de Registro de Arrestados y Aprehendidos")
-    ventana_login.geometry("800x700")
+    ventana_login.state("zoomed")
     ventana_login.resizable(True, True)
-    ventana_login.configure(bg="#f0f0f0")
+    ventana_login.configure(bg="#e6edd8")
 
-    # Función para verificar el usuario
+    barra_original = Image.open("images/barra.png").resize((ventana_login.winfo_screenwidth(), 60))
+    barra_img = ImageTk.PhotoImage(barra_original)
+
+    carcancho_original = Image.open("images/CARCANCHO CON LETRAS.png").resize((230, 80))
+    carcancho_img = ImageTk.PhotoImage(carcancho_original)
+
     def verificar_usuario():
         usuario = entry_usuario.get()
         contraseña = entry_contraseña.get()
 
         if usuario == USUARIO_GENERAL and contraseña == CONTRASEÑA_GENERAL:
             mensaje_label.config(text="✅ Inicio de sesión exitoso.", fg="green")
-            ventana_login.after(1000, cerrar_login_y_abrir_registro)  # Esperar 1 segundo para cerrar login y abrir ventana principal
+            ventana_login.after(1000, cerrar_login_y_abrir_registro)
         else:
             mensaje_label.config(text="❌ Usuario o contraseña incorrectos.", fg="red")
 
     def cerrar_login_y_abrir_registro():
-        ventana_login.destroy()  # Cierra la ventana de login
-        main_window.iniciar_registro()  # Abre la ventana principal (aquí llamas a la función de tu ventana principal)
+        ventana_login.destroy() 
+        main_window.iniciar_registro() 
+    
+    barra_original = Image.open("images/barra.png").resize((ventana_login.winfo_screenwidth(), 50))
+    barra_img = ImageTk.PhotoImage(barra_original)  
+    barra_label = tk.Label(ventana_login, image=barra_img, bg="#e6edd8")
+    barra_label.image = barra_img
+    barra_label.place(x=0, y=ventana_login.winfo_screenheight() - 110)
 
-    # UI (Interfaz)
-    label_titulo = tk.Label(ventana_login, text="COMANDO DEPARTAMENTAL DE POTOSÍ\nCONCILIACIÓN CIUDADANA",
-                             font=("Arial", 20, "bold"), justify="center", bg="#f0f0f0")
-    label_titulo.pack(pady=20)
+    carcancho = Image.open("images/CARCANCHO CON LETRAS.png").resize((230, 80))
+    carcancho = ImageTk.PhotoImage(carcancho)
+    label_carcancho = tk.Label(ventana_login, image=carcancho, bg="#e6edd8")
+    label_carcancho.image = carcancho
+    label_carcancho.place(x=1200, y=640)
 
-    # Imagen
+    label_titulo = tk.Label(ventana_login, text="COMANDO DEPARTAMENTAL DE POTOSÍ\nCONCILIACIÓN CIUDADANA", font=("Segoe UI", 25, "bold"), justify="center", bg="#e6edd8", fg="#204e4a")
+    label_titulo.pack(pady=(50, 20))
+
     img = Image.open("images/logo.png")
-    img = img.resize((250, 250))
+    img = img.resize((300, 300))
     img = ImageTk.PhotoImage(img)
 
-    label_img = tk.Label(ventana_login, image=img, bg="#f0f0f0")
-    label_img.image = img  # Muy importante para evitar que se elimine la imagen de memoria
+    label_img = tk.Label(ventana_login, image=img)
+    label_img.image = img
     label_img.pack(pady=10)
 
-    # Usuario
-    tk.Label(ventana_login, text="Usuario:", font=("Arial", 14), bg="#f0f0f0").pack()
-    entry_usuario = tk.Entry(ventana_login, font=("Arial", 14), width=20)
+    tk.Label(ventana_login, text="USUARIO:", font=("Arial", 15, "bold"), bg="#e6edd8").pack()
+    entry_usuario = tk.Entry(ventana_login, font=("Arial", 15), width=30, justify="center")
     entry_usuario.pack()
 
-    # Contraseña
-    tk.Label(ventana_login, text="Contraseña:", font=("Arial", 14), bg="#f0f0f0").pack()
-    entry_contraseña = tk.Entry(ventana_login, show="*", font=("Arial", 14), width=20)
+    tk.Label(ventana_login, text="CONTRASEÑA:", font=("Arial", 15, "bold"), bg="#e6edd8").pack()
+    entry_contraseña = tk.Entry(ventana_login, show="*", font=("Arial", 15), width=30, justify="center")
     entry_contraseña.pack()
 
-    # Botón
-    btn_login = tk.Button(ventana_login, text="Iniciar sesión", command=verificar_usuario, font=("Arial", 14, "bold"),
-                          bg="#4CAF50", fg="white", width=15, height=2)
+    btn_login = tk.Button(ventana_login, text="Iniciar sesión", command=verificar_usuario, font=("Arial", 14, "bold"), bg="#48B14B", fg="white", width=25, height=2)
     btn_login.pack(pady=20)
 
-    # Mensajes
-    mensaje_label = tk.Label(ventana_login, text="", font=("Arial", 14, "bold"), bg="#f0f0f0")
+    mensaje_label = tk.Label(ventana_login, text="", font=("Arial", 14, "bold"), bg="#e6edd8")
     mensaje_label.pack()
 
-    # Mostrar ventana
     ventana_login.mainloop()

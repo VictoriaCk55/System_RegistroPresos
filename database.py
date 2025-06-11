@@ -1,4 +1,3 @@
-# base_datos.py
 import pandas as pd
 import os
 

@@ -1,5 +1,4 @@
 # config.py
-
 import os
 
 # Carpeta donde se guardarán los archivos de datos
