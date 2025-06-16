@@ -1,4 +1,6 @@
 import tkinter as tk
+import os
+import sys
 from PIL import Image, ImageTk
 import main_window 
 
@@ -7,6 +9,13 @@ CONTRASEÑA_GENERAL = "admin"
 
 ventana_login = None
 
+def rutas(ruta_relativa):
+        try:
+            rutabase=sys._MEIPASS
+        except Exception:
+            rutabase=os.path.abspath(".")
+        return os.path.join(rutabase, ruta_relativa)
+
 def crear_login(on_login_success):
     global ventana_login
     ventana_login = tk.Tk()
@@ -14,12 +23,8 @@ def crear_login(on_login_success):
     ventana_login.state("zoomed")
     ventana_login.resizable(True, True)
     ventana_login.configure(bg="#e6edd8")
-
-    barra_original = Image.open("images/barra.png").resize((ventana_login.winfo_screenwidth(), 60))
-    barra_img = ImageTk.PhotoImage(barra_original)
-
-    carcancho_original = Image.open("images/CARCANCHO CON LETRAS.png").resize((230, 80))
-    carcancho_img = ImageTk.PhotoImage(carcancho_original)
+    ruta = rutas(r"logo.ico")
+    ventana_login.iconbitmap(ruta)
 
     def verificar_usuario():
         usuario = entry_usuario.get()
@@ -34,14 +39,16 @@ def crear_login(on_login_success):
     def cerrar_login_y_abrir_registro():
         ventana_login.destroy() 
         main_window.iniciar_registro() 
-    
-    barra_original = Image.open("images/barra.png").resize((ventana_login.winfo_screenwidth(), 50))
+
+    ruta = rutas("images/barra.png")
+    barra_original = Image.open(ruta).resize((ventana_login.winfo_screenwidth(), 50))
     barra_img = ImageTk.PhotoImage(barra_original)  
     barra_label = tk.Label(ventana_login, image=barra_img, bg="#e6edd8")
     barra_label.image = barra_img
     barra_label.place(x=0, y=ventana_login.winfo_screenheight() - 110)
 
-    carcancho = Image.open("images/CARCANCHO CON LETRAS.png").resize((230, 80))
+    ruta = rutas("images/CARCANCHO CON LETRAS.png")
+    carcancho = Image.open(ruta).resize((230, 80))
     carcancho = ImageTk.PhotoImage(carcancho)
     label_carcancho = tk.Label(ventana_login, image=carcancho, bg="#e6edd8")
     label_carcancho.image = carcancho
@@ -49,8 +56,9 @@ def crear_login(on_login_success):
 
     label_titulo = tk.Label(ventana_login, text="COMANDO DEPARTAMENTAL DE POTOSÍ\nCONCILIACIÓN CIUDADANA", font=("Segoe UI", 25, "bold"), justify="center", bg="#e6edd8", fg="#204e4a")
     label_titulo.pack(pady=(50, 20))
-
-    img = Image.open("images/logo.png")
+    
+    ruta = rutas("images/logo.png")
+    img = Image.open(ruta)
     img = img.resize((300, 300))
     img = ImageTk.PhotoImage(img)
 

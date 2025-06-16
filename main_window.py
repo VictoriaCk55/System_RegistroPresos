@@ -1,8 +1,17 @@
 import tkinter as tk
+import sys
+import os
 from tkinter import messagebox
 from PIL import Image, ImageTk
 from registro import crear_formulario_registro
 from ver_registro import crear_ventana_ver_registros
+
+def rutas(ruta_relativa):
+        try:
+            rutabase=sys._MEIPASS
+        except Exception:
+            rutabase=os.path.abspath(".")
+        return os.path.join(rutabase, ruta_relativa)
 
 def iniciar_registro():
     def abrir_registro():
@@ -28,17 +37,21 @@ def iniciar_registro():
     ventana.state('zoomed')
     ventana.geometry("1500x800")
     ventana.configure(bg="#e6edd8")
+    ruta = rutas(r"logo.ico")
+    ventana.iconbitmap(ruta)
 
     titulo = tk.Label(ventana, text="COMANDO DEPARTAMENTAL DE POTOSÍ\nCONCILIACIÓN CIUDADANA", font=("Arial", 25, "bold"), justify="center", bg="#e6edd8", fg="#204e4a")
     titulo.pack(pady=(20, 20))
 
-    carcancho = Image.open("images/CARCANCHO CON LETRAS.png").resize((230, 80))
+    ruta=rutas(r"images/CARCANCHO CON LETRAS.png")
+    carcancho = Image.open(ruta).resize((230, 80))
     carcancho = ImageTk.PhotoImage(carcancho)
     label_carcancho = tk.Label(ventana, image=carcancho, bg="#e6edd8")
     label_carcancho.image = carcancho
     label_carcancho.place(x=1200, y=640)
 
-    logo = Image.open("images/logo.png").resize((300, 300))
+    ruta=rutas(r"images/logo.png")
+    logo = Image.open(ruta).resize((300, 300))
     logo = ImageTk.PhotoImage(logo)
     label_logo = tk.Label(ventana, image=logo)
     label_logo.image = logo
@@ -54,7 +67,8 @@ def iniciar_registro():
     btn_salir.pack(pady=10)
 
     global barra_original
-    barra_original = Image.open("images/barra.png")
+    ruta=rutas(r"images/barra.png")
+    barra_original = Image.open(ruta)
     barra_resized = barra_original.resize((1000, 50))
     barra_resized = ImageTk.PhotoImage(barra_resized)
     label_barra = tk.Label(ventana, image=barra_resized)

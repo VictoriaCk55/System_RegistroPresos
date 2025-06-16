@@ -1,7 +1,6 @@
 import pandas as pd
 import os
 
-# Ruta para el archivo de datos Excel
 ARCHIVO_DATOS = "data/registros.xlsx"
 
 def leer_datos():
@@ -9,13 +8,12 @@ def leer_datos():
     if os.path.exists(ARCHIVO_DATOS):
         return pd.read_excel(ARCHIVO_DATOS)
     else:
-        # Si no existe el archivo, devuelve un DataFrame vacío
         return pd.DataFrame()
 
 def guardar_datos(df):
     """Guarda los datos de los arrestados en el archivo de Excel."""
     if not os.path.exists("data"):
-        os.makedirs("data")  # Crear la carpeta 'data' si no existe
+        os.makedirs("data") 
     df.to_excel(ARCHIVO_DATOS, index=False)
 
 def agregar_registro(datos):

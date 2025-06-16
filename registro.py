@@ -1,11 +1,19 @@
 import tkinter as tk
-from tkinter import filedialog, messagebox, ttk
-from PIL import Image, ImageTk
 import pandas as pd
 import os
+import sys
+from tkinter import filedialog, messagebox, ttk
+from PIL import Image, ImageTk
 from datetime import datetime
 from uuid import uuid4
 from config import RUTA_DATOS_EXCEL
+
+def rutas(ruta_relativa):
+        try:
+            rutabase=sys._MEIPASS
+        except Exception:
+            rutabase=os.path.abspath(".")
+        return os.path.join(rutabase, ruta_relativa)
 
 def crear_formulario_registro(root):
     if hasattr(root, 'registro_window') and tk.Toplevel.winfo_exists(root.registro_window):
@@ -16,10 +24,14 @@ def crear_formulario_registro(root):
     root.registro_window.title("Registrar Arrestados y Aprehendidos")
     root.registro_window.state('zoomed')
     root.registro_window.configure(bg="#e6edd8")
+    ruta = rutas(r"logo.ico")
+    root.registro_window.iconbitmap(ruta)
 
     global barra_original, carcancho_original
-    barra_original = Image.open("images/barra.png")
-    carcancho_original = Image.open("images/CARCANCHO CON LETRAS.png").resize((230, 80))
+    ruta=rutas(r"images/barra.png")
+    barra_original = Image.open(ruta)
+    ruta=rutas(r"images/CARCANCHO CON LETRAS.png")
+    carcancho_original = Image.open(ruta).resize((230, 80))
 
     main_frame = tk.Frame(root.registro_window, bg="#e6edd8")
     main_frame.pack(expand=True)
@@ -27,18 +39,24 @@ def crear_formulario_registro(root):
     titulo = tk.Label(main_frame, text="COMANDO DEPARTAMENTAL DE POTOSÍ\nCONCILIACIÓN CIUDADANA", font=("Segoe UI", 25, "bold"), bg="#e6edd8", fg="#204e4a")
     titulo.pack(pady=5)
 
-    formulario_frame = tk.Frame(main_frame, bg="#ffffff", padx=30, pady=30, relief="groove", bd=2)
-    formulario_frame.pack(expand=True, pady=(40, 100))
+    contenedor_central = tk.Frame(main_frame, bg="#e6edd8")
+    contenedor_central.pack(expand=True, pady=(40, 100), fill="both")
+
+    formulario_frame = tk.Frame(contenedor_central, bg="#ffffff", padx=30, pady=30, relief="groove", bd=2)
+    formulario_frame.pack(side="left", expand=True, fill="both")
+
+    imagen_frame = tk.Frame(contenedor_central, bg="#ffffff", padx=10, pady=10, relief="ridge", bd=2)
+    imagen_frame.pack(side="right", padx=10, pady=10)
 
     campos = [
-        "Motivo de la Detención",
         "Nombre del Arrestado",
+        "CI",
         "Edad",
         "Ocupación",
-        "CI",
+        "Motivo de la Detención",
+        "Estado Físico del Arrestado",
         "Nombre del Funcionario Policial",
         "Unidad",
-        "Estado Físico del Arrestado",
         "Descripción de Objetos del Arrestado",
         "Lugar donde fue Arrestado",
         "Nombre del Denunciante"
@@ -71,9 +89,11 @@ def crear_formulario_registro(root):
 
     def seleccionar_imagen():
         filepath = filedialog.askopenfilename(
+            parent=root.registro_window,
             title="Seleccionar Imagen",
             filetypes=[("Archivos de imagen", "*.png;*.jpg;*.jpeg;*.bmp;*.gif")]
         )
+
         if filepath:
             entradas["Imagen"] = filepath
             img = Image.open(filepath)
@@ -96,12 +116,11 @@ def crear_formulario_registro(root):
             unidad_personalizada_entry.grid_remove()
             unidad_combobox.grid()
 
-
     for idx, campo in enumerate(campos):
         col = 0 if idx < len(campos) // 2 else 2
         fila = idx if idx < len(campos) // 2 else idx - len(campos) // 2
 
-        label = tk.Label(formulario_frame, text=campo + ":", bg="#ffffff", anchor="w", font=("Arial", 12))
+        label = tk.Label(formulario_frame, text=campo + ":", bg="#ffffff", anchor="w", font=("Arial", 12, "bold"))
         label.grid(row=fila, column=col, sticky="w", padx=20, pady=20)
 
         if campo == "Unidad":
@@ -116,56 +135,64 @@ def crear_formulario_registro(root):
             unidad_personalizada_entry.grid_remove()
 
         elif campo in campos_texto_amplio:
-            text_widget = tk.Text(formulario_frame, height=3, width=48, wrap="word", font=("Arial", 10))
+            text_widget = tk.Text(formulario_frame, height=3, width=48, wrap="word", font=("Arial", 10), relief="solid", bd=1, highlightthickness=0)
             text_widget.grid(row=fila, column=col + 1, sticky="w", pady=5)
             entradas[campo] = text_widget
         else:
-            entry = tk.Entry(formulario_frame, width=50, font=("Arial", 10))
+            entry = tk.Entry(formulario_frame, width=48, font=("Arial", 10), relief="solid", bd=1, highlightthickness=0)
             entry.grid(row=fila, column=col + 1, sticky="w", pady=5)
             entradas[campo] = entry
 
-    btn_imagen = tk.Button(formulario_frame, text="Seleccionar Imagen", command=seleccionar_imagen, bg="#71AA2C", fg="white", width=20)
-    btn_imagen.grid(row=0, column=4, padx=10, pady=10)
+    btn_imagen = tk.Button(imagen_frame, text="Seleccionar Imagen", command=seleccionar_imagen, bg="#71AA2C", fg="white", width=20)
+    btn_imagen.pack(pady=10)
 
-    panel_imagen = tk.Label(formulario_frame, bg="#ffffff")
-    panel_imagen.grid(row=1, column=4, padx=10, pady=10)
+    panel_imagen = tk.Label(imagen_frame, bg="#ffffff")
+    panel_imagen.pack(pady=10)
 
     def guardar_datos():
         datos = {}
         for campo in campos:
             if campo == "Unidad":
-                seleccion = unidad_combobox.get()
-                if not seleccion or seleccion == "Seleccione unidad":
-                     messagebox.showwarning("Campo vacío", "Por favor ingresa o selecciona una unidad.")
-                     return
-                datos[campo] = seleccion.strip()
+                unidad = unidad_personalizada_entry.get().strip() if unidad_personalizada_entry.winfo_ismapped() else unidad_combobox.get().strip()
+                datos[campo] = unidad
             elif campo in campos_texto_amplio:
-                texto = entradas[campo].get("1.0", "end").strip()
-                if not texto:
-                    messagebox.showwarning("Campo vacío", f"Llena el campo '{campo}'")
-                    return
-                datos[campo] = texto
+                datos[campo] = entradas[campo].get("1.0", "end-1c").strip()
             else:
-                valor = entradas[campo].get().strip()
-                if not valor:
-                    messagebox.showwarning("Campo vacío", f"Llena el campo '{campo}'")
-                    return
-                datos[campo] = valor
+                datos[campo] = entradas[campo].get().strip()
 
-        datos["Fecha y Hora de Ingreso"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        if not datos["Nombre del Arrestado"] or datos["Unidad"] in ("", "Seleccione unidad"):
+            messagebox.showerror("Error", "Por favor completa al menos el nombre del arrestado y selecciona una unidad válida.", parent=root.registro_window)
+            return
+
+        fecha_hora_ingreso = datetime.now()
+        datos["Fecha y Hora de Ingreso"] = fecha_hora_ingreso.strftime("%Y-%m-%d %H:%M:%S")
         datos["ID"] = str(uuid4())[:8]
         datos["Imagen"] = entradas.get("Imagen", "")
         datos["Fecha y Hora de Salida"] = ""
 
+        hoja_año = str(fecha_hora_ingreso.year)
         df_nuevo = pd.DataFrame([datos])
+
+        otros_dfs = {}
         if os.path.exists(RUTA_DATOS_EXCEL):
-            df_existente = pd.read_excel(RUTA_DATOS_EXCEL)
-            df_final = pd.concat([df_existente, df_nuevo], ignore_index=True)
+            with pd.ExcelFile(RUTA_DATOS_EXCEL) as xls:
+                for hoja in xls.sheet_names:
+                    df_hoja = pd.read_excel(xls, sheet_name=hoja)
+                    if hoja == hoja_año:
+                        df_existente = df_hoja
+                    else:
+                        otros_dfs[hoja] = df_hoja
+            df_final = pd.concat([df_existente, df_nuevo], ignore_index=True) if hoja_año in xls.sheet_names else df_nuevo
         else:
             df_final = df_nuevo
+    
+        with pd.ExcelWriter(RUTA_DATOS_EXCEL, engine="openpyxl") as writer:
 
-        df_final.to_excel(RUTA_DATOS_EXCEL, index=False)
-        messagebox.showinfo("Éxito", "Datos guardados correctamente.")
+            df_final.to_excel(writer, sheet_name=hoja_año, index=False)
+            for hoja, df in otros_dfs.items():
+                df.to_excel(writer, sheet_name=hoja, index=False)
+
+        messagebox.showinfo("Éxito", "Datos guardados correctamente.", parent=root.registro_window)
         limpiar_formulario()
 
     def limpiar_formulario():
@@ -183,7 +210,7 @@ def crear_formulario_registro(root):
         panel_imagen.image = None
 
     def volver_atras():
-        if messagebox.askyesno("Volver", "¿Deseas volver? Se perderán los datos no guardados."):
+        if messagebox.askyesno("Volver", "¿Deseas salir? Se perderán los datos no guardados.", parent=root.registro_window):
             root.registro_window.destroy()
 
     boton_frame = tk.Frame(main_frame, bg="#f0f0f0")
